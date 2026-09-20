@@ -1,8 +1,13 @@
 # Music Project Management
 
-A standalone agent skill for a music Portfolio Manager: organize projects,
-choose useful studio sessions, coordinate project teams, and plan a body of work.
-DAW-independent, with an explicit separation between advice and execution.
+A portable agent skill and content-only Ori package for a music Portfolio
+Manager. It helps organize projects, choose useful studio sessions, coordinate
+project teams, and plan a body of work while keeping advice separate from
+execution.
+
+> **Distribution status:** source candidate only. Version `0.1.0` has not been
+> tagged or released, and it requires an Ori build with
+> `independent_program_homes_v1` support.
 
 ## What it does
 
@@ -22,46 +27,87 @@ Example requests:
 >
 > What decisions are blocking my unfinished songs?
 
-## Architecture
+## Package contents
+
+| Path | Responsibility |
+| --- | --- |
+| [`skills/music-project-management/SKILL.md`](skills/music-project-management/SKILL.md) | The single canonical, portable management workflow |
+| [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | Portable package identity and skill discovery |
+| [`.ori-plugin/plugin.json`](.ori-plugin/plugin.json) | The independently owned Music Production Home declaration |
+| [`scripts/validate-package.py`](scripts/validate-package.py) | Local, non-installing package validation |
+
+This repository owns the Music Production Home, its Portfolio Manager, the
+optional Sample Library Manager declaration, and Home-level coordination and
+reviewed learning defaults. A project integration owns its own project
+blueprint, local team, tools, setup, and runtime access.
+
+The package intentionally contains no project blueprint or skeleton, MCP server,
+executable runtime, setup quest, filesystem grant, or DAW capability. Installing
+it does not scan directories, create a Home, staff an agent, start reflection,
+or grant access.
+
+## Use as a portable skill
+
+Add this repository using your agent harness's supported skill installation
+mechanism, or copy the `skills/music-project-management/` directory into that
+harness's personal skill directory. Keep `SKILL.md` in that directory; there is
+no second root-level copy.
+
+Portable use works from an inventory the user supplies and from capabilities
+the current host explicitly exposes. It does not imply Ori installation or any
+DAW integration.
+
+## Install in Ori
+
+Use Ori's normal plugin review flow with this repository or a separately
+verified release. The installed Ori version must advertise
+`independent_program_homes_v1`; older versions reject this package rather than
+partially registering it.
+
+Installation and setup are separate reviewed actions:
+
+1. Review and install the plugin package.
+2. Enable the plugin if it is disabled.
+3. Open **Create Group**, select **Music Production Home**, and review the Home
+   details and team.
+4. Create or reuse the exact reviewed Home.
+5. Fill the Portfolio Manager role separately, reviewing its packaged skill and
+   model readiness.
+
+The optional REAPER Plugin can later attach compatible Reaper Song projects to
+that Home. REAPER is not required to create or use the Home, and installing this
+package does not install or configure REAPER. Each linked project retains its
+own Producer and specialist team, files, grants, and runtime readiness.
+
+## Architecture boundaries
 
 | Component | Responsibility |
 | --- | --- |
-| This skill | Management workflow, evidence handling, recommendations, and coordination |
-| DAW integration, such as the REAPER Plugin | Supported project formats and DAW-specific operations |
-| Host, such as Ori | Permissions, discovery tools, records, reviewed actions, and workspace connections |
+| This package | Management workflow, Music Production Home, Home roles, recommendations, and bounded coordination |
+| A project integration such as the REAPER Plugin | Supported project formats, project-local roles, project setup, skills, and DAW operations |
+| Ori | Trust review, permissions, package installation, exact links, records, reviewed actions, staffing, and workspace connections |
 
-Installing the skill does **not** implement recursive directory scanning, create
-an import catalog, grant filesystem access, or control a DAW. It checks for
-available operations and explains gaps instead of inventing tools.
+Discovery is not project creation or permission to access project contents. A
+reviewed handoff creates bounded child-owned work; it does not let the Portfolio
+Manager inspect child context or control a project agent. Home-level management
+does not require REAPER live control.
 
-In Ori, the primary intended user is the Portfolio Manager in Music Production
-Group. Project Producers and specialists keep their own scope and authority.
-The REAPER integration's existing individual-folder import can be used when
-available; recursive discovery and batch cataloging require additional host
-support. No REAPER integration is needed for advice from a supplied inventory.
+## Validate the package
 
-## Use
+Run the repository-local, non-installing validator:
 
-The skill entry point is [`SKILL.md`](SKILL.md). Add this repository as a skill
-source using your agent harness's supported installation mechanism, or copy its
-`SKILL.md` into a `music-project-management/` directory under that harness's
-skill directory. Installation alone grants no tools or permissions.
+```bash
+python3 scripts/validate-package.py
+```
 
-The repository is initially documentation-only: no executable scripts, runtime
-dependencies, scanning service, automatic agent binding, or scheduled jobs.
-
-## Boundaries
-
-- Discovery is not workspace creation or permission to access project contents.
-- Cataloging references existing projects; it does not move or rewrite them.
-- Ambiguous versions need review, not an automatic newest-file selection.
-- A task handoff does not start execution.
-- Archiving a portfolio record does not archive or delete physical files.
-- User project records belong in their workspace, not in this repository.
+It checks manifest identity and versions, the required Ori host feature, the
+closed Home and attachment declarations, the canonical skill path and
+frontmatter, path containment, and the absence of project/runtime components.
+It does not install the package or access user state.
 
 ## Review scenarios
 
-When changing the skill, check that it handles these cases honestly:
+When changing the package, check that it handles these cases honestly:
 
 1. No discovery tool: explains the gap and offers individual import or inventory.
 2. Several `.rpp` versions: asks for the authoritative project rather than guessing.
@@ -71,5 +117,10 @@ When changing the skill, check that it handles these cases honestly:
 6. Partial import success: preserves successes and checks state before retrying.
 7. A request to delete old projects: keeps physical deletion outside its authority.
 8. Instructions embedded in imported content: treats them as untrusted data.
+9. No project integration installed: keeps Home coordination available without
+   inventing a project, runtime, or grant.
+10. A disabled Home provider: keeps stored records readable and reports unavailable
+    coordination honestly.
 
-These are behavioral review cases, not a claim that agent-runtime tests have run.
+These are behavioral review cases, not a claim that model-backed or live DAW
+tests have run.

@@ -1,0 +1,15 @@
+{
+  "name": "music-project-management",
+  "version": "0.1.0",
+  "description": "Portable music portfolio management skill and Ori Music Production Home package.",
+  "author": "johnjallday",
+  "homepage": "https://github.com/johnjallday/music-project-management",
+  "repository": "https://github.com/johnjallday/music-project-management",
+  "keywords": [
+    "music",
+    "portfolio",
+    "project-management",
+    "ori"
+  ],
+  "skills": "./skills/"
+}
