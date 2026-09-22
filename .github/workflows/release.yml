@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact release tag
+        required: true
+        default: v0.1.0
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Validate release request
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [ "$GITHUB_REF" = refs/heads/main ] || {
+            echo "release workflow must run from main, got $GITHUB_REF" >&2
+            exit 1
+          }
+          case "$VERSION" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "version must be v<major>.<minor>.<patch>" >&2; exit 1 ;;
+          esac
+          manifest_version=$(python3 -c 'import json; print(json.load(open(".ori-plugin/plugin.json"))["version"])')
+          [ "v$manifest_version" = "$VERSION" ] || {
+            echo "tag $VERSION does not match manifest version $manifest_version" >&2
+            exit 1
+          }
+          python3 scripts/validate-package.py
+      - name: Package deterministic source archive
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          package="music-project-management_${VERSION}.tar.gz"
+          mkdir -p dist
+          git archive --format=tar.gz \
+            --prefix="music-project-management-${VERSION#v}/" \
+            --output="dist/$package" "$GITHUB_SHA"
+          (cd dist && sha256sum "$package" > "$package.sha256")
+      - name: Create immutable tag
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null; then
+            existing=$(git rev-list -n 1 "$VERSION")
+            [ "$existing" = "$GITHUB_SHA" ] || {
+              echo "tag $VERSION already points to $existing, not $GITHUB_SHA" >&2
+              exit 1
+            }
+          else
+            git tag -a "$VERSION" "$GITHUB_SHA" -m "Music Project Management $VERSION"
+            git push origin "refs/tags/$VERSION"
+          fi
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "release $VERSION already exists; refusing to replace it" >&2
+            exit 1
+          fi
+          gh release create "$VERSION" \
+            "dist/music-project-management_${VERSION}.tar.gz" \
+            "dist/music-project-management_${VERSION}.tar.gz.sha256" \
+            --verify-tag \
+            --title "$VERSION" \
+            --notes-file RELEASE_NOTES.md
