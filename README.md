@@ -5,9 +5,9 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Distribution status:** source candidate only. Version `0.1.0` has not been
-> tagged or released, and it requires an Ori build with
-> `independent_program_homes_v1` support.
+> **Compatibility:** version `0.1.0` requires Ori `v0.0.115` or newer. During
+> the coordinated rollout, `v0.0.115-rc.1` is the compatible test host. Older
+> Ori versions reject the package rather than partially registering it.
 
 ## What it does
 
