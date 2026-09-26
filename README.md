@@ -5,16 +5,18 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** version `0.1.0` requires Ori `v0.0.115` or newer. During
-> the coordinated rollout, `v0.0.115-rc.1` is the compatible test host. Older
-> Ori versions reject the package rather than partially registering it.
+> **Compatibility:** this unreleased `0.1.1` source candidate retains the
+> content-only Home contract from `0.1.0`, which requires Ori `v0.0.115` or
+> newer. The project-library and studio-session features additionally require
+> host support; this package does not implement them. Older Ori versions reject
+> the package rather than partially registering it.
 
 ## What it does
 
 - Guides project discovery and onboarding when the host provides those tools.
 - Helps classify songs by purpose, production stage, priority, and next milestone.
 - Recommends what to work on from known goals, blockers, and available time.
-- Prepares reviewed handoffs to individual project Producers.
+- Prepares reviewed handoffs to the exact linked project's declared role(s).
 - Supports EP/album planning, studio reviews, and archive-readiness discussions.
 
 Example requests:
@@ -76,8 +78,12 @@ Installation and setup are separate reviewed actions:
 
 The optional REAPER Plugin can later attach compatible Reaper Song projects to
 that Home. REAPER is not required to create or use the Home, and installing this
-package does not install or configure REAPER. Each linked project retains its
-own Producer and specialist team, files, grants, and runtime readiness.
+package does not install or configure REAPER. Catalog-only songs need no
+project workspace and cannot receive a project handoff. Each exact linked
+project retains the role(s) declared by its installed blueprint (a REAPER Song
+may have one REAPER Assistant), files, grants, and runtime readiness. Session
+goals and recaps are reviewed Home records, not proof of project work or DAW
+activity.
 
 ## Architecture boundaries
 

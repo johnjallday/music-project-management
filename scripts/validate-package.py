@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ID = "music-project-management"
-PLUGIN_VERSION = "0.1.0"
+PLUGIN_VERSION = "0.1.1"
 HOME_ID = "music-producer-assistant"
 SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
@@ -137,6 +137,9 @@ def validate_home(home: dict[str, Any]) -> None:
     manager = role_by_id["portfolio_manager"]
     require(manager["required"] is True and manager.get("primary") is True, "Portfolio Manager must be the required Home primary")
     require(manager.get("skills") == [SKILL_ID], "Portfolio Manager must bind only the packaged management skill")
+    prompt = manager["system_prompt"].lower()
+    for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap"):
+        require(marker in prompt, f"Portfolio Manager prompt omits {marker!r} boundary")
     sample_manager = role_by_id["sample_library_manager"]
     require(sample_manager["required"] is False and not sample_manager.get("primary", False), "Sample Library Manager must remain optional and non-primary")
     require(sample_manager.get("capability_id") == "sample-library", "Sample Library Manager must retain the reviewed add-on boundary")
@@ -199,6 +202,12 @@ def validate_skill(root: Path) -> None:
     require(fields.get("name") == SKILL_ID, "skill frontmatter name does not match its package identity")
     require(bool(fields.get("description")), "skill frontmatter description is required")
     require("reaper_live_control" not in text, "portable Home skill must not require REAPER live control")
+    # Keep the portable workflow aligned with a single-role REAPER project and
+    # Home-owned catalog entries; neither a catalog entry nor a session note
+    # grants child access or proves execution.
+    for marker in ("catalog-only", "exact link", "declared role", "goal or recap"):
+        require(marker in text.lower(), f"portable Home skill omits {marker!r} guidance")
+    require("producer owns production decisions" not in text.lower(), "portable Home skill assumes a project Producer")
 
 
 def sha256(path: Path) -> str:
