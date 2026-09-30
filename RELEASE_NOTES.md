@@ -1,6 +1,6 @@
 # Release notes
 
-## 0.1.1 — Unreleased guidance candidate
+## 0.1.1 — Guidance update
 
 - Align the portable skill, packaged Portfolio Manager prompt, and README with
   installed project-local role declarations. REAPER Song's newer blueprint can
@@ -8,12 +8,15 @@
 - Keep catalog-only entries separate from exact Assistant Project Links and
   distinguish reviewed Home session goals/recaps from child task or DAW progress.
 - Retain the content-only Home schema/version `1`, exact attachment allowlist,
-  host feature, and no automatic project or filesystem authority. The package
-  version changes because its skill and prompt bytes change. Existing Home
-  snapshots must not silently rebind; a future installed-provider update and
-  existing-Home compatibility path need separate host review before delivery.
-
-This candidate is not a published release or an update to Ori's reviewed pin.
+  host feature, and no automatic project or filesystem authority. Only the
+  Portfolio Manager prompt and the packaged skill text change.
+- New installs still require Ori `v0.0.115` or newer.
+- An existing Music Production Home moves to `0.1.1` only through Ori's
+  owner-reviewed Home package upgrade (ori-agent #573, in the first Ori release
+  after `v0.0.116`). It keeps approved library folders and replaces a staffed
+  Portfolio Manager's prompt only if it was never edited. On Ori `v0.0.116` or
+  older, do not update this package while a Music Production Home exists: those
+  versions cannot move the Home and leave it read-only.
 
 ## 0.1.0 — Independent Music Production Home
 

@@ -5,11 +5,14 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** this unreleased `0.1.1` source candidate retains the
-> content-only Home contract from `0.1.0`, which requires Ori `v0.0.115` or
-> newer. The project-library and studio-session features additionally require
-> host support; this package does not implement them. Older Ori versions reject
-> the package rather than partially registering it.
+> **Compatibility:** version `0.1.1` keeps the content-only Home contract from
+> `0.1.0` and requires Ori `v0.0.115` or newer. An existing Music Production
+> Home moves from `0.1.0` only through Ori's reviewed Home package upgrade (the
+> first Ori release after `v0.0.116`); do not update the package on older Ori
+> while such a Home exists. The project-library and studio-session features
+> additionally require host support; this package does not implement them. Ori
+> versions before `v0.0.115` reject the package rather than partially
+> registering it.
 
 ## What it does
 
