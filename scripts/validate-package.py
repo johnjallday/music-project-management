@@ -13,10 +13,13 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ID = "music-project-management"
-PLUGIN_VERSION = "0.1.1"
+PLUGIN_VERSION = "0.2.0"
 HOME_ID = "music-producer-assistant"
 SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
+HOME_PROFILE_FEATURE = "home_profile_v1"
+HOME_PROFILE_KINDS = ("apps", "main_app", "templates", "defaults")
+HOME_PROFILE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 REPOSITORY = "https://github.com/johnjallday/music-project-management"
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
@@ -113,15 +116,49 @@ def validate_role(role: dict[str, Any], expected_id: str) -> None:
     require("scope" not in role, f"Home role {expected_id} must not declare project scope")
 
 
+def profile_text(value: Any, limit: int, label: str) -> None:
+    require(isinstance(value, str) and value == value.strip(), f"{label} must be trimmed text")
+    require(1 <= len(value) <= limit, f"{label} must be 1 to {limit} characters")
+    require("://" not in value, f"{label} must not contain a URL")
+    require(not any(ord(char) < 32 or ord(char) == 127 for char in value), f"{label} must be one line of plain text")
+
+
+def validate_home_profile(profile: Any) -> None:
+    """The closed home_profile section: display words only, four host-known kinds."""
+    require(isinstance(profile, dict), "home_profile must be an object")
+    keys = {"schema_version", "title", "intro", "fields"}
+    require_keys(profile, keys, keys, "home_profile")
+    require(profile["schema_version"] == 1, "home_profile schema_version must be 1")
+    profile_text(profile["title"], 60, "home_profile title")
+    profile_text(profile["intro"], 240, "home_profile intro")
+    fields = profile["fields"]
+    require(isinstance(fields, list) and 1 <= len(fields) <= len(HOME_PROFILE_KINDS), "home_profile needs one to four fields")
+    ids: set[str] = set()
+    kinds: set[str] = set()
+    for field in fields:
+        require(isinstance(field, dict), "home_profile fields must be objects")
+        field_keys = {"id", "kind", "label"}
+        require_keys(field, field_keys, field_keys, "home_profile field")
+        require(isinstance(field["id"], str) and HOME_PROFILE_ID_PATTERN.fullmatch(field["id"]) is not None, "home_profile field id is invalid")
+        require(field["id"] not in ids, f"home_profile field id is duplicated: {field['id']}")
+        ids.add(field["id"])
+        require(field["kind"] in HOME_PROFILE_KINDS, f"home_profile field kind is not host-known: {field['kind']}")
+        require(field["kind"] not in kinds, f"home_profile kind is declared twice: {field['kind']}")
+        kinds.add(field["kind"])
+        profile_text(field["label"], 40, f"home_profile field {field['id']} label")
+
+
 def validate_home(home: dict[str, Any]) -> None:
-    allowed = {
+    required = {
         "schema_version", "version", "id", "station_name", "station_description",
         "default_primary_name", "hire_title", "hire_description", "disabled_message",
         "suggestion_required_capabilities", "roles", "stages", "reflection",
         "allowed_project_attachments",
     }
-    required = allowed
+    allowed = required | {"home_profile"}
     require_keys(home, required, allowed, "assistant program Home")
+    require("home_profile" in home, "this release must declare the Home profile")
+    validate_home_profile(home["home_profile"])
     require(home["schema_version"] == 1 and home["version"] == 1, "Home schema/version must be 1")
     require(home["id"] == HOME_ID and ID_PATTERN.fullmatch(home["id"]), "Home identity is invalid")
     require(home["station_name"] == "Music Production Home", "Home station name is inconsistent")
@@ -177,7 +214,7 @@ def validate_ori_manifest(manifest: dict[str, Any], claude: dict[str, Any]) -> N
     require(manifest["name"] == claude["name"] == PLUGIN_ID, "manifest plugin names do not match")
     require(manifest["version"] == claude["version"] == PLUGIN_VERSION, "manifest plugin versions do not match")
     require(manifest["protocol"] == {"min": 1, "max": 1}, "Ori protocol range must be exactly v1")
-    require(manifest["requires_host_features"] == [HOST_FEATURE], "Ori package must require the independent Home host feature")
+    require(manifest["requires_host_features"] == [HOST_FEATURE, HOME_PROFILE_FEATURE], "Ori package must require the independent Home and Home profile host features")
     require(manifest["capabilities"] == [], "music package must not install a capability")
     require(manifest["services"] == [], "music package must not contain a runtime service")
     require(manifest["blueprints"] == [], "music package must not contain a project blueprint")

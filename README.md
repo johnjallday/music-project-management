@@ -5,14 +5,14 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** version `0.1.1` keeps the content-only Home contract from
-> `0.1.0` and requires Ori `v0.0.115` or newer. An existing Music Production
-> Home moves from `0.1.0` only through Ori's reviewed Home package upgrade (the
-> first Ori release after `v0.0.116`); do not update the package on older Ori
-> while such a Home exists. The project-library and studio-session features
-> additionally require host support; this package does not implement them. Ori
-> versions before `v0.0.115` reject the package rather than partially
-> registering it.
+> **Compatibility:** version `0.2.0` adds the **Your studio** card to the Home
+> declaration and requires an Ori version that advertises both
+> `independent_program_homes_v1` and `home_profile_v1`. An Ori version without
+> `home_profile_v1` rejects `0.2.0` rather than partially registering it; use
+> `0.1.1` there. An existing Music Production Home moves from `0.1.x` only
+> through Ori's reviewed Home package upgrade, which adds the empty card and
+> changes nothing else. The project-library, studio-session and studio-profile
+> features are implemented by the host; this package does not implement them.
 
 ## What it does
 
@@ -51,6 +51,16 @@ executable runtime, setup quest, filesystem grant, or DAW capability. Installing
 it does not scan directories, create a Home, staff an agent, start reflection,
 or grant access.
 
+### Your studio
+
+The Home declaration carries a `home_profile` section: a title ("Your studio"),
+a one-line introduction, and labels for up to four rows whose meaning Ori owns
+(`apps`, `main_app`, `templates`, `defaults`). That is all the package says
+about it. Ori looks for installed DAWs only when you ask or when you press Set
+up on a setup card, treats what it finds as hints until you confirm them, and
+lists template names only through an installed project plugin and only after
+you agree. The package itself never detects, reads or stores anything.
+
 ## Use as a portable skill
 
 Add this repository using your agent harness's supported skill installation
@@ -66,8 +76,8 @@ DAW integration.
 
 Use Ori's normal plugin review flow with this repository or a separately
 verified release. The installed Ori version must advertise
-`independent_program_homes_v1`; older versions reject this package rather than
-partially registering it.
+`independent_program_homes_v1` and `home_profile_v1`; older versions reject
+this package rather than partially registering it.
 
 Installation and setup are separate reviewed actions:
 
@@ -109,9 +119,10 @@ Run the repository-local, non-installing validator:
 python3 scripts/validate-package.py
 ```
 
-It checks manifest identity and versions, the required Ori host feature, the
-closed Home and attachment declarations, the canonical skill path and
-frontmatter, path containment, and the absence of project/runtime components.
+It checks manifest identity and versions, the required Ori host features, the
+closed Home, Home profile and attachment declarations, the canonical skill path
+and frontmatter, path containment, and the absence of project/runtime
+components.
 It does not install the package or access user state.
 
 ## Review scenarios
