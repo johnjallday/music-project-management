@@ -1,5 +1,35 @@
 # Release notes
 
+## 0.2.0 — Your studio
+
+- The Music Production Home declares a **Your studio** card: the DAWs found on
+  this Mac, your main DAW, your project templates, and the defaults a new song
+  starts from. The package supplies only the card's title, its one-line
+  introduction and the four row labels (`home_profile` on the Home
+  declaration). Ori owns what each row stores, looks for installed
+  applications, and asks before anything is read.
+- The package stays content-only. It contains no detection, no file access and
+  no runtime. Template names are listed only by an installed project plugin
+  that offers that read (the REAPER Plugin from `0.10.0`), and only after you
+  agree on a setup card or in the Home's review dialog.
+- The Portfolio Manager and each linked project's assistant are told what the
+  card holds. A detected value is a hint; a value you confirmed or set is an
+  instruction.
+- Requires the Ori host feature `home_profile_v1` in addition to
+  `independent_program_homes_v1`. An Ori version without it rejects this
+  release instead of partially registering it, and keeps using `0.1.1`.
+- An existing Music Production Home moves to `0.2.0` only through Ori's
+  owner-reviewed Home package upgrade. The review says "Adds a Your studio card
+  to this Home. Nothing is detected or read until you open it." Approved
+  library folders, staffing and learnings are kept; the card starts empty with
+  a **Detect** button.
+- Home schema/version stay `1`. Roles, stages, reflection bounds, the exact
+  REAPER attachment allowlist and the packaged skill are unchanged from
+  `0.1.1`.
+- After a Home has a studio profile, do not open it with an Ori version from
+  before `home_profile_v1`: that version does not know the record and drops it
+  the next time it saves the Home.
+
 ## 0.1.1 — Guidance update
 
 - Align the portable skill, packaged Portfolio Manager prompt, and README with

@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "name": "music-project-management",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "protocol": {
     "min": 1,
     "max": 1
   },
   "requires_host_features": [
-    "independent_program_homes_v1"
+    "independent_program_homes_v1",
+    "home_profile_v1"
   ],
   "capabilities": [],
   "services": [],
@@ -79,7 +80,34 @@
           "min_project_team_version": 1,
           "max_project_team_version": 1
         }
-      ]
+      ],
+      "home_profile": {
+        "schema_version": 1,
+        "title": "Your studio",
+        "intro": "What Ori knows about where you make music. Detected values are hints until you confirm them.",
+        "fields": [
+          {
+            "id": "apps",
+            "kind": "apps",
+            "label": "DAWs on this Mac"
+          },
+          {
+            "id": "main_app",
+            "kind": "main_app",
+            "label": "Main DAW"
+          },
+          {
+            "id": "templates",
+            "kind": "templates",
+            "label": "Project templates"
+          },
+          {
+            "id": "defaults",
+            "kind": "defaults",
+            "label": "New-song defaults"
+          }
+        ]
+      }
     }
   ]
 }
