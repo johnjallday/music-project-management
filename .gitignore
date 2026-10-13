@@ -4,3 +4,9 @@
 !.env.example
 __pycache__/
 *.py[cod]
+
+# Agent planning artifacts (checklists, findings, evidence) stay local
+/tasks/
+
+# Claude Code local settings
+.claude/settings.local.json
