@@ -175,7 +175,7 @@ def validate_home(home: dict[str, Any]) -> None:
     require(manager["required"] is True and manager.get("primary") is True, "Portfolio Manager must be the required Home primary")
     require(manager.get("skills") == [SKILL_ID], "Portfolio Manager must bind only the packaged management skill")
     prompt = manager["system_prompt"].lower()
-    for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap", "proposal is inert", "observed activity", "advertised", "file movement"):
+    for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap", "proposal is inert", "observed activity", "advertised", "file movement", "saving a proposal is not applying it", "canonical host confirmation", "canonical receipts"):
         require(marker in prompt, f"Portfolio Manager prompt omits {marker!r} boundary")
     sample_manager = role_by_id["sample_library_manager"]
     require(sample_manager["required"] is False and not sample_manager.get("primary", False), "Sample Library Manager must remain optional and non-primary")
@@ -244,10 +244,12 @@ def validate_skill(root: Path) -> None:
     # grants child access or proves execution.
     for marker in ("catalog-only", "exact link", "declared role", "goal or recap"):
         require(marker in text.lower(), f"portable Home skill omits {marker!r} guidance")
-    lowered = text.lower()
+    lowered = " ".join(text.lower().split())
     require("## arrange the workspace" in lowered, "portable Home skill omits the workspace arrangement section")
     for marker in ("inert", "observed activity", "unknown", "logical collections", "file movement",
-                   "advertised", "incomplete", "correct conversationally", "its own capability and approval"):
+                   "advertised", "incomplete", "correct conversationally", "its own capability and approval",
+                   "saved intent", "applied effects", "saving a proposal is not applying it",
+                   "model prose never saves a plan", "canonical host confirmation", "canonical receipt"):
         require(marker in lowered, f"portable Home skill omits arrangement guidance {marker!r}")
     require("producer owns production decisions" not in text.lower(), "portable Home skill assumes a project Producer")
 

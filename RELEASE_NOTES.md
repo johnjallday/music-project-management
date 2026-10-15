@@ -13,7 +13,8 @@
 - A proposal is inert. A catalog-only entry is not a link, grouping is not
   file movement, and scans, source reads, staffing, task execution and DAW
   action each keep their own capability and approval.
-- No manifest field, host feature, protocol range or Home declaration changed.
+- No manifest field, host feature, protocol range or Home declaration
+  shape/schema changed; the Portfolio Manager role prompt did change.
   Required features stay `independent_program_homes_v1` and `home_profile_v1`;
   Home schema/version stay `1`. Roles, stages, reflection bounds, the REAPER
   attachment and the four-row profile are unchanged from `0.2.0`.

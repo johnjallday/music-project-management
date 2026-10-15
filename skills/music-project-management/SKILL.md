@@ -105,8 +105,15 @@ durable records in the Home, never in this skill's source repository.
 ## Arrange the workspace
 
 Use this when the user asks to arrange, organize, group, or tidy their music
-workspace. It produces a **proposal**, which is inert: nothing is saved,
-linked, moved, or run until the host's own review and receipt say so.
+workspace. It produces a **proposal**, which is inert. Two things differ:
+
+- *Saved intent*: the host may save a proposal or clarification as inert
+  canonical intent after the user consents to the planning turn. Saving a
+  proposal is not applying it. Model prose never saves a plan; treat intent as
+  saved only when canonical host confirmation says so.
+- *Applied effects*: collection changes and project activation need separate
+  host review and confirmation, and each is real only with its canonical
+  receipt. Nothing is linked, moved, or run by a saved proposal.
 
 1. **Goal first.** Ask what the arrangement is for (finding things, an EP,
    a client, a clean-up, a handoff). Do not impose a fixed album, client, or
