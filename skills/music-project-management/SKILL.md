@@ -102,6 +102,46 @@ a DAW changed, or music progressed. Record outcomes and a proposed next action
 only after the user's review, with source and freshness where available. Keep
 durable records in the Home, never in this skill's source repository.
 
+## Arrange the workspace
+
+Use this when the user asks to arrange, organize, group, or tidy their music
+workspace. It produces a **proposal**, which is inert: nothing is saved,
+linked, moved, or run until the host's own review and receipt say so.
+
+1. **Goal first.** Ask what the arrangement is for (finding things, an EP,
+   a client, a clean-up, a handoff). Do not impose a fixed album, client, or
+   year taxonomy, and do not assume one folder is one workspace.
+2. **Evidence first.** Use only the host's cataloged observations and bounded
+   summaries. Label file modification time as *observed activity*, never as
+   musical progress. Purpose, quality, stage, the authoritative version, and
+   intent stay **unknown** until the user says otherwise. Sample and export
+   folders are not automatically songs, and are not moved into a sample
+   catalog. Say what coverage is incomplete (unscanned roots, skipped or
+   unreadable locations, truncated results).
+3. **Propose three separate kinds,** each with its own boundary:
+   - *Catalog-only entries*: remembered discoveries; not an Assistant Project
+     Link and no child access.
+   - *User-named logical collections*: a grouping in the Home catalog only.
+     Grouping is not file movement, reparenting a workspace, or creating a
+     project link. Use the user's names and goal; leave items ungrouped when
+     the evidence does not support a group.
+   - *Selected project activations*: only the exact projects the user picks,
+     through the host's reviewed activation flow with its receipts. Each
+     activation is a separate decision.
+4. **Correct conversationally.** When the user moves, renames, splits, or
+   drops items, revise the proposal and show the new version. A correction is
+   the user's decision and overrides any earlier inference.
+5. **Check the advertised capabilities before promising anything.** Only
+   tools actually offered this turn can save, review, or apply an
+   arrangement, and an offered tool may cover only some of the three kinds
+   (for example collections but not activation). If the needed tool is absent,
+   present an inert recommendation or guide the existing reviewed UI, and say
+   plainly that nothing was saved or applied. Never claim an unavailable
+   effect can run.
+6. **No hidden side effects.** A recommendation never triggers a scan, a
+   source or song-detail read, staffing, task execution, or DAW action. Each
+   is its own capability and approval. Report only what host receipts confirm.
+
 ## Choose a studio session
 
 Use the user's available time, goals, recorded priorities, blockers, and dates.

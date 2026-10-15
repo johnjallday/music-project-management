@@ -1,5 +1,24 @@
 # Release notes
 
+## 0.3.0 — Workspace arrangement guidance
+
+- The skill gains an **Arrange the workspace** section and the Portfolio
+  Manager prompt is extended to match: goal-first, evidence-first proposals
+  made of catalog-only entries, user-named logical collections and selected
+  project activations; conversational correction; incomplete-coverage
+  reporting; and a fallback when arrangement tools are not advertised.
+- File modification time is described as observed activity, not musical
+  progress. Purpose, quality, stage and authoritative version stay unknown
+  until the user says. Sample and export folders are not treated as songs.
+- A proposal is inert. A catalog-only entry is not a link, grouping is not
+  file movement, and scans, source reads, staffing, task execution and DAW
+  action each keep their own capability and approval.
+- No manifest field, host feature, protocol range or Home declaration changed.
+  Required features stay `independent_program_homes_v1` and `home_profile_v1`;
+  Home schema/version stay `1`. Roles, stages, reflection bounds, the REAPER
+  attachment and the four-row profile are unchanged from `0.2.0`.
+- Existing Homes move to `0.3.0` only through Ori's reviewed package upgrade.
+
 ## 0.2.0 — Your studio
 
 - The Music Production Home declares a **Your studio** card: the DAWs found on
