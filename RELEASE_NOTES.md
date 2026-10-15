@@ -18,6 +18,9 @@
   Required features stay `independent_program_homes_v1` and `home_profile_v1`;
   Home schema/version stay `1`. Roles, stages, reflection bounds, the REAPER
   attachment and the four-row profile are unchanged from `0.2.0`.
+- The skill is condensed to under 7,000 UTF-8 bytes and the Portfolio Manager
+  prompt stays under 2,000, so a planning turn fits the host's per-turn budget.
+  The validator enforces both bounds. Workflows and boundaries are unchanged.
 - Existing Homes move to `0.3.0` only through Ori's reviewed package upgrade.
 
 ## 0.2.0 — Your studio

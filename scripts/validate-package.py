@@ -14,6 +14,8 @@ from typing import Any
 
 PLUGIN_ID = "music-project-management"
 PLUGIN_VERSION = "0.3.0"
+MAX_SKILL_BYTES = 7000
+MAX_MANAGER_PROMPT_BYTES = 2000
 HOME_ID = "music-producer-assistant"
 SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
@@ -174,6 +176,7 @@ def validate_home(home: dict[str, Any]) -> None:
     manager = role_by_id["portfolio_manager"]
     require(manager["required"] is True and manager.get("primary") is True, "Portfolio Manager must be the required Home primary")
     require(manager.get("skills") == [SKILL_ID], "Portfolio Manager must bind only the packaged management skill")
+    require(len(manager["system_prompt"].encode("utf-8")) <= MAX_MANAGER_PROMPT_BYTES, f"Portfolio Manager prompt exceeds {MAX_MANAGER_PROMPT_BYTES} UTF-8 bytes")
     prompt = manager["system_prompt"].lower()
     for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap", "proposal is inert", "observed activity", "advertised", "file movement", "saving a proposal is not applying it", "canonical host confirmation", "canonical receipts"):
         require(marker in prompt, f"Portfolio Manager prompt omits {marker!r} boundary")
@@ -226,6 +229,8 @@ def validate_ori_manifest(manifest: dict[str, Any], claude: dict[str, Any]) -> N
 def validate_skill(root: Path) -> None:
     path = root / "skills" / SKILL_ID / "SKILL.md"
     text = path.read_text(encoding="utf-8")
+    size = len(text.encode("utf-8"))
+    require(size <= MAX_SKILL_BYTES, f"portable Home skill is {size} UTF-8 bytes; the planner budget allows {MAX_SKILL_BYTES}")
     require(text.startswith("---\n"), "skill must start with YAML frontmatter")
     end = text.find("\n---\n", 4)
     require(end > 4, "skill frontmatter is not terminated")
