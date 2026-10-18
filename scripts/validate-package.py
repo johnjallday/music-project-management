@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ID = "music-project-management"
-PLUGIN_VERSION = "0.2.0"
+PLUGIN_VERSION = "0.3.0"
+MAX_SKILL_BYTES = 7000
+MAX_MANAGER_PROMPT_BYTES = 2000
 HOME_ID = "music-producer-assistant"
 SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
@@ -174,8 +176,9 @@ def validate_home(home: dict[str, Any]) -> None:
     manager = role_by_id["portfolio_manager"]
     require(manager["required"] is True and manager.get("primary") is True, "Portfolio Manager must be the required Home primary")
     require(manager.get("skills") == [SKILL_ID], "Portfolio Manager must bind only the packaged management skill")
+    require(len(manager["system_prompt"].encode("utf-8")) <= MAX_MANAGER_PROMPT_BYTES, f"Portfolio Manager prompt exceeds {MAX_MANAGER_PROMPT_BYTES} UTF-8 bytes")
     prompt = manager["system_prompt"].lower()
-    for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap"):
+    for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap", "proposal is inert", "observed activity", "advertised", "file movement", "saving a proposal is not applying it", "canonical host confirmation", "canonical receipts"):
         require(marker in prompt, f"Portfolio Manager prompt omits {marker!r} boundary")
     sample_manager = role_by_id["sample_library_manager"]
     require(sample_manager["required"] is False and not sample_manager.get("primary", False), "Sample Library Manager must remain optional and non-primary")
@@ -226,6 +229,8 @@ def validate_ori_manifest(manifest: dict[str, Any], claude: dict[str, Any]) -> N
 def validate_skill(root: Path) -> None:
     path = root / "skills" / SKILL_ID / "SKILL.md"
     text = path.read_text(encoding="utf-8")
+    size = len(text.encode("utf-8"))
+    require(size <= MAX_SKILL_BYTES, f"portable Home skill is {size} UTF-8 bytes; the planner budget allows {MAX_SKILL_BYTES}")
     require(text.startswith("---\n"), "skill must start with YAML frontmatter")
     end = text.find("\n---\n", 4)
     require(end > 4, "skill frontmatter is not terminated")
@@ -244,6 +249,13 @@ def validate_skill(root: Path) -> None:
     # grants child access or proves execution.
     for marker in ("catalog-only", "exact link", "declared role", "goal or recap"):
         require(marker in text.lower(), f"portable Home skill omits {marker!r} guidance")
+    lowered = " ".join(text.lower().split())
+    require("## arrange the workspace" in lowered, "portable Home skill omits the workspace arrangement section")
+    for marker in ("inert", "observed activity", "unknown", "logical collections", "file movement",
+                   "advertised", "incomplete", "correct conversationally", "its own capability and approval",
+                   "saved intent", "applied effects", "saving a proposal is not applying it",
+                   "model prose never saves a plan", "canonical host confirmation", "canonical receipt"):
+        require(marker in lowered, f"portable Home skill omits arrangement guidance {marker!r}")
     require("producer owns production decisions" not in text.lower(), "portable Home skill assumes a project Producer")
 
 

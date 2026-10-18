@@ -5,14 +5,18 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** version `0.2.0` adds the **Your studio** card to the Home
-> declaration and requires an Ori version that advertises both
-> `independent_program_homes_v1` and `home_profile_v1`. An Ori version without
-> `home_profile_v1` rejects `0.2.0` rather than partially registering it; use
-> `0.1.1` there. An existing Music Production Home moves from `0.1.x` only
-> through Ori's reviewed Home package upgrade, which adds the empty card and
-> changes nothing else. The project-library, studio-session and studio-profile
-> features are implemented by the host; this package does not implement them.
+> **Compatibility:** version `0.3.0` adds workspace-arrangement guidance to the
+> skill and the Portfolio Manager prompt. It requires the same host features as
+> `0.2.0` (`independent_program_homes_v1` and `home_profile_v1`) and adds no new
+> one, so it installs on any host that accepted `0.2.0`. The guidance checks
+> the tools a host advertises each turn; where arrangement tools are absent it
+> gives an inert recommendation and claims nothing was saved. Version `0.2.0`
+> added the **Your studio** card; an Ori version without `home_profile_v1`
+> rejects `0.2.0` and later rather than partially registering them (use
+> `0.1.1` there). An existing Music Production Home moves to a newer package
+> only through Ori's reviewed Home package upgrade. The project-library,
+> studio-session, studio-profile and arrangement features are implemented by
+> the host; this package does not implement them.
 
 ## What it does
 
