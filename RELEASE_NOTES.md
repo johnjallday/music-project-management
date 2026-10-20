@@ -1,5 +1,43 @@
 # Release notes
 
+## 0.4.0 — REAPER Studio
+
+- The Music Production Home allows one optional **REAPER Studio**: a second
+  entry appended after `reaper-song` in `allowed_project_attachments`, naming
+  the REAPER plugin's `reaper-studio` blueprint and `reaper-studio-team`
+  (team schema `1`, version `1`–`1`) with `workspace_kind: "resource"`, the
+  label "REAPER Studio" and a one-line description. A Studio is a resource
+  workspace that holds the catalog of templates, scripts and audio plugins a
+  REAPER setup already has. It is not a song and never counts as one.
+- Requires the Ori host feature `resource_workspaces_v1` in addition to
+  `independent_program_homes_v1` and `home_profile_v1`, so this release needs
+  the first Ori release with `resource_workspaces_v1`. An older Ori rejects
+  `0.4.0` rather than partially registering it and keeps using `0.3.0`.
+  Setting a Studio up also needs the REAPER plugin `0.11.0` or newer; with an
+  older REAPER plugin the Home allows the Studio and Ori reports the missing
+  blueprint.
+- The Portfolio Manager prompt and the skill gain the Studio guidance: the
+  Studio holds the catalog, the Home shows only counts and freshness, song
+  assistants may look up entries the owner approved, and nothing is applied,
+  run or installed. Both stay within their budgets (2,000 and 7,000 UTF-8
+  bytes); a few existing sentences were condensed to make room and every
+  boundary phrase the validator checks is kept.
+- The package stays content-only. It declares words; Ori creates the Studio,
+  reviews and reads sources, stores the catalog, renders the owner view and
+  authorizes lookups. The package never reads a REAPER folder.
+- Home `schema_version` and `version` stay `1`. Roles, stages, reflection
+  bounds, the four-row profile and the `reaper-song` entry are byte-identical
+  to `0.3.0`; only the Portfolio Manager prompt text changed.
+- An existing Music Production Home moves to `0.4.0` only through Ori's
+  reviewed Home package upgrade (its additive resource attachment class). The
+  review says "Adds REAPER Studio to this Home. Nothing is created or read
+  until you set it up. Once set up, assistants in this Home's projects can
+  look up entries from sources you approve." The upgrade creates, staffs and
+  inspects nothing.
+- The validator pins the third host feature and exactly two attachments,
+  `reaper-song` then `reaper-studio` with the resource fields, and checks the
+  new guidance phrases in the prompt and the skill.
+
 ## 0.3.0 — Workspace arrangement guidance
 
 - The skill gains an **Arrange the workspace** section and the Portfolio

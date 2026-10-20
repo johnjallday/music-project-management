@@ -13,13 +13,37 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ID = "music-project-management"
-PLUGIN_VERSION = "0.3.0"
+PLUGIN_VERSION = "0.4.0"
 MAX_SKILL_BYTES = 7000
 MAX_MANAGER_PROMPT_BYTES = 2000
 HOME_ID = "music-producer-assistant"
 SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
 HOME_PROFILE_FEATURE = "home_profile_v1"
+RESOURCE_WORKSPACES_FEATURE = "resource_workspaces_v1"
+REQUIRED_HOST_FEATURES = (HOST_FEATURE, HOME_PROFILE_FEATURE, RESOURCE_WORKSPACES_FEATURE)
+# The two attachments the Home allows, in declaration order. The REAPER song
+# team is a project; the REAPER Studio team is a resource workspace that holds
+# the catalog of templates, scripts and audio plugins. Both are words only.
+PROJECT_ATTACHMENT = {
+    "provider_plugin_id": "reaper-plugin",
+    "blueprint_id": "reaper-song",
+    "project_team_id": "reaper-song-team",
+    "project_team_schema_version": 1,
+    "min_project_team_version": 1,
+    "max_project_team_version": 1,
+}
+RESOURCE_ATTACHMENT = {
+    "provider_plugin_id": "reaper-plugin",
+    "blueprint_id": "reaper-studio",
+    "project_team_id": "reaper-studio-team",
+    "project_team_schema_version": 1,
+    "min_project_team_version": 1,
+    "max_project_team_version": 1,
+    "workspace_kind": "resource",
+    "label": "REAPER Studio",
+    "description": "One place for the templates, scripts and audio plugins your REAPER setup already has.",
+}
 HOME_PROFILE_KINDS = ("apps", "main_app", "templates", "defaults")
 HOME_PROFILE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 REPOSITORY = "https://github.com/johnjallday/music-project-management"
@@ -150,6 +174,17 @@ def validate_home_profile(profile: Any) -> None:
         profile_text(field["label"], 40, f"home_profile field {field['id']} label")
 
 
+def validate_resource_attachment(attachment: Any) -> None:
+    """The one REAPER Studio entry: a resource workspace declared by words only."""
+    require(isinstance(attachment, dict), "Home resource attachment must be an object")
+    keys = set(PROJECT_ATTACHMENT) | {"workspace_kind", "label", "description"}
+    require_keys(attachment, keys, keys, "Home resource attachment")
+    require(attachment["workspace_kind"] == "resource", 'the second Home attachment must declare workspace_kind "resource"')
+    profile_text(attachment["label"], 60, "Home resource attachment label")
+    profile_text(attachment["description"], 240, "Home resource attachment description")
+    require(attachment == RESOURCE_ATTACHMENT, "Home resource attachment must be exactly the reviewed REAPER Studio contract")
+
+
 def validate_home(home: dict[str, Any]) -> None:
     required = {
         "schema_version", "version", "id", "station_name", "station_description",
@@ -180,6 +215,11 @@ def validate_home(home: dict[str, Any]) -> None:
     prompt = manager["system_prompt"].lower()
     for marker in ("catalog-only", "exact-link", "project blueprint", "goal or recap", "proposal is inert", "observed activity", "advertised", "file movement", "saving a proposal is not applying it", "canonical host confirmation", "canonical receipts"):
         require(marker in prompt, f"Portfolio Manager prompt omits {marker!r} boundary")
+    # The optional REAPER Studio is a resource workspace, never a song: it holds
+    # the catalog, the Home shows counts and freshness, song assistants may look
+    # up owner-approved entries, and nothing is applied, run or installed.
+    for marker in ("one optional reaper studio", "resource catalog", "not a song", "never counts as one", "counts and freshness", "entries the owner approved", "applied, run or installed"):
+        require(marker in prompt, f"Portfolio Manager prompt omits REAPER Studio guidance {marker!r}")
     sample_manager = role_by_id["sample_library_manager"]
     require(sample_manager["required"] is False and not sample_manager.get("primary", False), "Sample Library Manager must remain optional and non-primary")
     require(sample_manager.get("capability_id") == "sample-library", "Sample Library Manager must retain the reviewed add-on boundary")
@@ -196,14 +236,9 @@ def validate_home(home: dict[str, Any]) -> None:
     require(reflection["minimum_projects"] >= 3 and reflection["cadence_hours"] >= 24, "Home reflection bounds are unsafe")
 
     attachments = home["allowed_project_attachments"]
-    require(attachments == [{
-        "provider_plugin_id": "reaper-plugin",
-        "blueprint_id": "reaper-song",
-        "project_team_id": "reaper-song-team",
-        "project_team_schema_version": 1,
-        "min_project_team_version": 1,
-        "max_project_team_version": 1,
-    }], "Home attachment allowlist must contain only the reviewed REAPER project-team contract")
+    require(isinstance(attachments, list) and len(attachments) == 2, "Home must allow exactly two attachments: the REAPER song team, then the REAPER Studio resource team")
+    require(attachments[0] == PROJECT_ATTACHMENT, "the first Home attachment must be the reviewed REAPER project-team contract, with no resource fields")
+    validate_resource_attachment(attachments[1])
 
     serialized = json.dumps(home).lower()
     for forbidden in ("reaper_live_control", "runtime_provider", "entrypoint", "setup_quest", "command", "filesystem_root"):
@@ -217,7 +252,7 @@ def validate_ori_manifest(manifest: dict[str, Any], claude: dict[str, Any]) -> N
     require(manifest["name"] == claude["name"] == PLUGIN_ID, "manifest plugin names do not match")
     require(manifest["version"] == claude["version"] == PLUGIN_VERSION, "manifest plugin versions do not match")
     require(manifest["protocol"] == {"min": 1, "max": 1}, "Ori protocol range must be exactly v1")
-    require(manifest["requires_host_features"] == [HOST_FEATURE, HOME_PROFILE_FEATURE], "Ori package must require the independent Home and Home profile host features")
+    require(manifest["requires_host_features"] == list(REQUIRED_HOST_FEATURES), "Ori package must require the independent Home, Home profile and resource workspace host features, in that order")
     require(manifest["capabilities"] == [], "music package must not install a capability")
     require(manifest["services"] == [], "music package must not contain a runtime service")
     require(manifest["blueprints"] == [], "music package must not contain a project blueprint")
@@ -256,6 +291,10 @@ def validate_skill(root: Path) -> None:
                    "saved intent", "applied effects", "saving a proposal is not applying it",
                    "model prose never saves a plan", "canonical host confirmation", "canonical receipt"):
         require(marker in lowered, f"portable Home skill omits arrangement guidance {marker!r}")
+    require("## reaper studio" in lowered, "portable Home skill omits the REAPER Studio section")
+    for marker in ("one optional reaper studio", "resource catalog", "not a song", "never counts as one",
+                   "counts and freshness", "entries the owner approved", "applied, run or installed"):
+        require(marker in lowered, f"portable Home skill omits REAPER Studio guidance {marker!r}")
     require("producer owns production decisions" not in text.lower(), "portable Home skill assumes a project Producer")
 
 
