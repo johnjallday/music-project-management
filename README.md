@@ -5,17 +5,17 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** version `0.3.0` adds workspace-arrangement guidance to the
-> skill and the Portfolio Manager prompt. It requires the same host features as
-> `0.2.0` (`independent_program_homes_v1` and `home_profile_v1`) and adds no new
-> one, so it installs on any host that accepted `0.2.0`. The guidance checks
-> the tools a host advertises each turn; where arrangement tools are absent it
-> gives an inert recommendation and claims nothing was saved. Version `0.2.0`
-> added the **Your studio** card; an Ori version without `home_profile_v1`
-> rejects `0.2.0` and later rather than partially registering them (use
-> `0.1.1` there). An existing Music Production Home moves to a newer package
-> only through Ori's reviewed Home package upgrade. The project-library,
-> studio-session, studio-profile and arrangement features are implemented by
+> **Compatibility:** version `0.4.0` lets the Music Production Home have one
+> optional **REAPER Studio**: a resource attachment appended after the REAPER
+> Song entry, provided by the REAPER plugin from `0.11.0`. It requires a third
+> Ori host feature, `resource_workspaces_v1`, so it needs the first Ori release
+> with `resource_workspaces_v1`; an older Ori rejects `0.4.0` rather than
+> partially registering it and keeps using `0.3.0`. Version `0.3.0` added
+> workspace-arrangement guidance and `0.2.0` the **Your studio** card
+> (`home_profile_v1`); an Ori version without `home_profile_v1` keeps `0.1.1`.
+> An existing Music Production Home moves to a newer package only through
+> Ori's reviewed Home package upgrade. The project-library, studio-session,
+> studio-profile, arrangement and resource-catalog features are implemented by
 > the host; this package does not implement them.
 
 ## What it does
@@ -65,6 +65,19 @@ up on a setup card, treats what it finds as hints until you confirm them, and
 lists template names only through an installed project plugin and only after
 you agree. The package itself never detects, reads or stores anything.
 
+### REAPER Studio
+
+The Home declaration allows one optional **REAPER Studio**: a resource
+workspace, provided by the REAPER plugin's `reaper-studio` blueprint, that
+holds the catalog of templates, scripts and audio plugins a REAPER setup
+already has. The package contributes the attachment entry, its label and
+one-line description, and the guidance that a Studio is not a song and never
+counts as one. Ori creates the Studio only when you press **Set up REAPER
+Studio** on the Home, reads a source only after you approve it, shows the Home
+nothing but counts and freshness, and lets a song's assistant look up entries
+from approved sources. Nothing in the catalog is applied, run or installed,
+and the package itself never reads a REAPER folder.
+
 ## Use as a portable skill
 
 Add this repository using your agent harness's supported skill installation
@@ -80,8 +93,8 @@ DAW integration.
 
 Use Ori's normal plugin review flow with this repository or a separately
 verified release. The installed Ori version must advertise
-`independent_program_homes_v1` and `home_profile_v1`; older versions reject
-this package rather than partially registering it.
+`independent_program_homes_v1`, `home_profile_v1` and `resource_workspaces_v1`;
+older versions reject this package rather than partially registering it.
 
 Installation and setup are separate reviewed actions:
 
@@ -94,8 +107,9 @@ Installation and setup are separate reviewed actions:
    model readiness.
 
 The optional REAPER Plugin can later attach compatible Reaper Song projects to
-that Home. REAPER is not required to create or use the Home, and installing this
-package does not install or configure REAPER. Catalog-only songs need no
+that Home and, from `0.11.0`, set up the Home's one REAPER Studio. REAPER is
+not required to create or use the Home, and installing this package does not
+install or configure REAPER. Catalog-only songs need no
 project workspace and cannot receive a project handoff. Each exact linked
 project retains the role(s) declared by its installed blueprint (a REAPER Song
 may have one REAPER Assistant), files, grants, and runtime readiness. Session
@@ -123,9 +137,10 @@ Run the repository-local, non-installing validator:
 python3 scripts/validate-package.py
 ```
 
-It checks manifest identity and versions, the required Ori host features, the
-closed Home, Home profile and attachment declarations, the canonical skill path
-and frontmatter, path containment, and the absence of project/runtime
+It checks manifest identity and versions, the three required Ori host features,
+the closed Home, Home profile and attachment declarations (the REAPER Song
+project team, then the REAPER Studio resource workspace), the canonical skill
+path and frontmatter, path containment, and the absence of project/runtime
 components.
 It does not install the package or access user state.
 
@@ -145,6 +160,9 @@ When changing the package, check that it handles these cases honestly:
    inventing a project, runtime, or grant.
 10. A disabled Home provider: keeps stored records readable and reports unavailable
     coordination honestly.
+11. A Home with a REAPER Studio: leaves it out of song counts, sessions and
+    handoffs, and treats catalog entries as data seen at inspection that
+    nothing applies, runs or installs.
 
 These are behavioral review cases, not a claim that model-backed or live DAW
 tests have run.
