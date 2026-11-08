@@ -5,7 +5,12 @@ Manager. It helps organize projects, choose useful studio sessions, coordinate
 project teams, and plan a body of work while keeping advice separate from
 execution.
 
-> **Compatibility:** version `0.4.0` lets the Music Production Home have one
+> **Compatibility:** version `0.5.0` supplies the Home's words for Ori's
+> project card and roster ("Song", "Songs and assistants", tracks/BPM/length)
+> and the Key, Reference tracks and Mix notes card fields. It requires a fourth
+> Ori host feature, `project_card_words_v1`, so it needs the first Ori release
+> with `project_card_words_v1`; an older Ori rejects `0.5.0` and keeps using
+> `0.4.0`. Version `0.4.0` lets the Music Production Home have one
 > optional **REAPER Studio**: a resource attachment appended after the REAPER
 > Song entry, provided by the REAPER plugin from `0.11.0`. It requires a third
 > Ori host feature, `resource_workspaces_v1`, so it needs the first Ori release
