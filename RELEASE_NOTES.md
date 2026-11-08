@@ -1,5 +1,31 @@
 # Release notes
 
+## 0.5.0 — Project card words
+
+- The Music Production Home names its own words for Ori's project card
+  (`project_card` on the Home declaration, section schema `1`): the noun
+  "Song" and "Songs", the roster title "Songs and assistants", and the facts
+  line in tracks, BPM and length ("14 tracks · 92 BPM · 3:41", "1 track").
+  These reproduce Ori's current wording, so the card reads the same as before.
+- The Home also declares three card fields that the song's assistants may
+  fill and the owner reviews: **Key** (text), **Reference tracks** (a list)
+  and **Mix notes** (text). The package supplies only the ids, labels and
+  kinds; Ori stores the values, renders the card and asks before a
+  suggestion is accepted.
+- Requires the Ori host feature `project_card_words_v1` in addition to
+  `independent_program_homes_v1`, `home_profile_v1` and
+  `resource_workspaces_v1`, so this release needs the first Ori release with
+  `project_card_words_v1`. An older Ori rejects `0.5.0` rather than partially
+  registering it and keeps using `0.4.0`.
+- Nothing else changes. Home `schema_version` and `version` stay `1`; roles,
+  prompts, stages, reflection bounds, both attachments, the four-row profile
+  and the packaged skill are byte-identical to `0.4.0`. The Home digest
+  changes only because the new section is part of it.
+- The validator pins the fourth host feature, requires the `project_card`
+  section, checks it against the host's rules (one-line plain text, length
+  bounds, one to three facts of known kinds, at most eight fields with unique
+  ids of kind text or list) and pins the noun, roster title and facts line.
+
 ## 0.4.0 — REAPER Studio
 
 - The Music Production Home allows one optional **REAPER Studio**: a second

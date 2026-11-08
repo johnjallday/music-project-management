@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "music-project-management",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "protocol": {
     "min": 1,
     "max": 1
@@ -9,7 +9,8 @@
   "requires_host_features": [
     "independent_program_homes_v1",
     "home_profile_v1",
-    "resource_workspaces_v1"
+    "resource_workspaces_v1",
+    "project_card_words_v1"
   ],
   "capabilities": [],
   "services": [],
@@ -117,6 +118,43 @@
             "id": "defaults",
             "kind": "defaults",
             "label": "New-song defaults"
+          }
+        ]
+      },
+      "project_card": {
+        "schema_version": 1,
+        "noun": "Song",
+        "noun_plural": "Songs",
+        "roster_title": "Songs and assistants",
+        "facts": [
+          {
+            "kind": "track_count",
+            "unit": "tracks",
+            "unit_one": "track"
+          },
+          {
+            "kind": "tempo",
+            "unit": "BPM"
+          },
+          {
+            "kind": "length"
+          }
+        ],
+        "fields": [
+          {
+            "id": "key",
+            "label": "Key",
+            "kind": "text"
+          },
+          {
+            "id": "references",
+            "label": "Reference tracks",
+            "kind": "list"
+          },
+          {
+            "id": "mix_notes",
+            "label": "Mix notes",
+            "kind": "text"
           }
         ]
       }

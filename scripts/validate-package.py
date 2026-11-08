@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ID = "music-project-management"
-PLUGIN_VERSION = "0.4.0"
+PLUGIN_VERSION = "0.5.0"
 MAX_SKILL_BYTES = 7000
 MAX_MANAGER_PROMPT_BYTES = 2000
 HOME_ID = "music-producer-assistant"
@@ -21,7 +21,23 @@ SKILL_ID = "music-project-management"
 HOST_FEATURE = "independent_program_homes_v1"
 HOME_PROFILE_FEATURE = "home_profile_v1"
 RESOURCE_WORKSPACES_FEATURE = "resource_workspaces_v1"
-REQUIRED_HOST_FEATURES = (HOST_FEATURE, HOME_PROFILE_FEATURE, RESOURCE_WORKSPACES_FEATURE)
+PROJECT_CARD_WORDS_FEATURE = "project_card_words_v1"
+REQUIRED_HOST_FEATURES = (HOST_FEATURE, HOME_PROFILE_FEATURE, RESOURCE_WORKSPACES_FEATURE, PROJECT_CARD_WORDS_FEATURE)
+# The project card words reproduce Ori's song card wording exactly; only the
+# plugin fields may vary within the host's rules.
+PROJECT_CARD_WORDS = {
+    "noun": "Song",
+    "noun_plural": "Songs",
+    "roster_title": "Songs and assistants",
+}
+PROJECT_CARD_FACTS = [
+    {"kind": "track_count", "unit": "tracks", "unit_one": "track"},
+    {"kind": "tempo", "unit": "BPM"},
+    {"kind": "length"},
+]
+PROJECT_CARD_FACT_KINDS = ("tempo", "length", "track_count")
+PROJECT_CARD_FIELD_KINDS = ("text", "list")
+PROJECT_CARD_MAX_FIELDS = 8
 # The two attachments the Home allows, in declaration order. The REAPER song
 # team is a project; the REAPER Studio team is a resource workspace that holds
 # the catalog of templates, scripts and audio plugins. Both are words only.
@@ -174,6 +190,50 @@ def validate_home_profile(profile: Any) -> None:
         profile_text(field["label"], 40, f"home_profile field {field['id']} label")
 
 
+def validate_project_card(card: Any) -> None:
+    """The closed project_card section: the Home's words for Ori's song card, roster and facts line."""
+    require(isinstance(card, dict), "project_card must be an object")
+    keys = {"schema_version", "noun", "noun_plural", "roster_title", "facts", "fields"}
+    require_keys(card, keys, keys, "project_card")
+    require(card["schema_version"] == 1, "project_card schema_version must be 1")
+    profile_text(card["noun"], 40, "project_card noun")
+    profile_text(card["noun_plural"], 40, "project_card noun_plural")
+    profile_text(card["roster_title"], 60, "project_card roster_title")
+    for key, expected in PROJECT_CARD_WORDS.items():
+        require(card[key] == expected, f"project_card {key} must be {expected!r}")
+
+    facts = card["facts"]
+    require(isinstance(facts, list) and 1 <= len(facts) <= len(PROJECT_CARD_FACT_KINDS), "project_card needs one to three facts")
+    fact_kinds: set[str] = set()
+    for fact in facts:
+        require(isinstance(fact, dict), "project_card facts must be objects")
+        kind = fact.get("kind")
+        require(kind in PROJECT_CARD_FACT_KINDS, f"project_card fact kind is not host-known: {kind}")
+        require(kind not in fact_kinds, f"project_card fact kind is declared twice: {kind}")
+        fact_kinds.add(kind)
+        if kind == "length":
+            require_keys(fact, {"kind"}, {"kind"}, "project_card length fact")
+        else:
+            require_keys(fact, {"kind", "unit"}, {"kind", "unit", "unit_one"}, f"project_card {kind} fact")
+            profile_text(fact["unit"], 40, f"project_card {kind} unit")
+            if "unit_one" in fact:
+                profile_text(fact["unit_one"], 40, f"project_card {kind} unit_one")
+    require(facts == PROJECT_CARD_FACTS, "project_card facts must reproduce the song card's tracks, BPM and length line")
+
+    fields = card["fields"]
+    require(isinstance(fields, list) and len(fields) <= PROJECT_CARD_MAX_FIELDS, f"project_card allows at most {PROJECT_CARD_MAX_FIELDS} fields")
+    ids: set[str] = set()
+    for field in fields:
+        require(isinstance(field, dict), "project_card fields must be objects")
+        field_keys = {"id", "label", "kind"}
+        require_keys(field, field_keys, field_keys, "project_card field")
+        require(isinstance(field["id"], str) and HOME_PROFILE_ID_PATTERN.fullmatch(field["id"]) is not None, "project_card field id is invalid")
+        require(field["id"] not in ids, f"project_card field id is duplicated: {field['id']}")
+        ids.add(field["id"])
+        require(field["kind"] in PROJECT_CARD_FIELD_KINDS, f"project_card field kind is not host-known: {field['kind']}")
+        profile_text(field["label"], 40, f"project_card field {field['id']} label")
+
+
 def validate_resource_attachment(attachment: Any) -> None:
     """The one REAPER Studio entry: a resource workspace declared by words only."""
     require(isinstance(attachment, dict), "Home resource attachment must be an object")
@@ -192,10 +252,12 @@ def validate_home(home: dict[str, Any]) -> None:
         "suggestion_required_capabilities", "roles", "stages", "reflection",
         "allowed_project_attachments",
     }
-    allowed = required | {"home_profile"}
+    allowed = required | {"home_profile", "project_card"}
     require_keys(home, required, allowed, "assistant program Home")
     require("home_profile" in home, "this release must declare the Home profile")
     validate_home_profile(home["home_profile"])
+    require("project_card" in home, "this release must declare the project card words")
+    validate_project_card(home["project_card"])
     require(home["schema_version"] == 1 and home["version"] == 1, "Home schema/version must be 1")
     require(home["id"] == HOME_ID and ID_PATTERN.fullmatch(home["id"]), "Home identity is invalid")
     require(home["station_name"] == "Music Production Home", "Home station name is inconsistent")
@@ -252,7 +314,7 @@ def validate_ori_manifest(manifest: dict[str, Any], claude: dict[str, Any]) -> N
     require(manifest["name"] == claude["name"] == PLUGIN_ID, "manifest plugin names do not match")
     require(manifest["version"] == claude["version"] == PLUGIN_VERSION, "manifest plugin versions do not match")
     require(manifest["protocol"] == {"min": 1, "max": 1}, "Ori protocol range must be exactly v1")
-    require(manifest["requires_host_features"] == list(REQUIRED_HOST_FEATURES), "Ori package must require the independent Home, Home profile and resource workspace host features, in that order")
+    require(manifest["requires_host_features"] == list(REQUIRED_HOST_FEATURES), "Ori package must require the independent Home, Home profile, resource workspace and project card words host features, in that order")
     require(manifest["capabilities"] == [], "music package must not install a capability")
     require(manifest["services"] == [], "music package must not contain a runtime service")
     require(manifest["blueprints"] == [], "music package must not contain a project blueprint")
